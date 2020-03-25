@@ -1,9 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
 import numpy as np
-# gpus = tf.config.experimental.list_physical_devices('GPU')
-# tf.config.experimental.set_memory_growth(gpus[0], True)
-from tensorflow.keras.layers import Dense, Permute,AveragePooling1D
+
+from tensorflow.keras.layers import Dense 
 from tensorflow.keras import Model
 
 import os, sys
@@ -117,13 +116,6 @@ class PositionEncoding(object):
         return np.array(input_vals), np.array(output_vals), np.array(indices_vals)
 
 
-# data = np.load('tiny_nerf_data.npz')
-# images = data['images']
-# poses = data['poses']
-# H, W = images.shape[1:3]
-
-# testimg, testpose = images[101], poses[101]
-
 from PIL import Image
 
 # im = Image.open('robot_256.jpg')
@@ -132,29 +124,15 @@ im2arr = np.array(im)
 
 testimg = im2arr 
 testimg = testimg / 255.0  
-
-# white_image = np.zeros_like(testimg) + 255.0
-# im = Image.fromarray(np.uint8(white_image))
-
-# im.save('white_image.jpg')
-
 H, W, C = testimg.shape
 
-# import pdb; pdb.set_trace()
-
 PE = PositionEncoding(testimg)
-# inp_batch, gt_batch = PE.get_batch()
 
 def build_model(output_dims=3):
     model = tf.keras.Sequential([
         Dense(128, activation='relu'),
         Dense(128, activation='relu'),
 
-        # It will average pool the second (middle) dimension  
-        # AveragePooling1D(pool_size=23),
-        # tf.keras.layers.Reshape((128,)),
-        # Dense(128, activation='relu'),
-        
         Dense(output_dims, activation='linear')
     ])
     return model
@@ -163,36 +141,16 @@ loss_object = tf.keras.losses.MeanSquaredError()
 optimizer = tf.keras.optimizers.Adam(lr=1e-2)
 EPOCHS = 5
 
-
 model = build_model(output_dims=3)
 
 batch_size = 1024
-# num_workers = 24
-
 decay = 0.999
 
-# len_dataset = dataset_reader.__len__()
 
 count = 0 
 epoch_no = 0 
 
 _read_img = np.zeros((H, W, 3))
-
-# import pdb; pdb.set_trace()
-
-# for _, val in enumerate(PE.dataset):
-#     x = int( round(W * (val[0])) ) # + 1) /2 )
-#     y = int( round(H * (val[1])) ) # + 1) /2 )   
-
-#     _read_img[y, x, 0] = val[2]
-#     _read_img[y, x, 1] = val[3]
-#     _read_img[y, x, 2] = val[4]
-
-# plt.imshow(_read_img)
-# plt.show()
-
-# plt.imshow(_read_img)
-# plt.show()
 
 import cv2 as cv2
 
