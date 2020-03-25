@@ -48,7 +48,7 @@ class PositionEncoding(object):
                 # Uncomment this line if you want to try (x, y) as input to the network
                 # i.e. passing raw coordinates instead of positional encoding 
                 # p_enc = [xdash, ydash]
-                
+
 
                 # Trying Random Fourier Features https://www.cs.cmu.edu/~schneide/DougalRandomFeatures_UAI2015.pdf
                 # and https://gist.github.com/vvanirudh/2683295a198a688ef3c49650cada0114
@@ -70,26 +70,6 @@ class PositionEncoding(object):
         np.random.shuffle(self.ind)
 
         self.batch_count = 0
-
-    def get_full_dataset(self):
-
-        input_vals  = []
-        output_vals = []
-        indices_vals= []
-        
-        for i in range(self.dataset_size):
-            p_enc = self.dataset[i]
-            
-            r, g, b = p_enc[-3], p_enc[-2], p_enc[-1]
-            x, y = p_enc[-5], p_enc[-4] 
-            inp_val = p_enc[0:-5]
-
-            input_vals.append(inp_val)
-            output_vals.append([r, g, b])
-            indices_vals.append([x, y])
-
-        return np.array(input_vals), np.array(output_vals), np.array(indices_vals)
-
 
     def get_batch(self, batch_size=10):
 
@@ -131,6 +111,7 @@ testimg = testimg / 255.0
 H, W, C = testimg.shape
 
 PE = PositionEncoding(testimg)
+dataset_size = PE.dataset_size
 
 def build_model(output_dims=3):
     model = tf.keras.Sequential([
@@ -170,7 +151,7 @@ while True:
 
             if count > 0 and count % 1000 == 0:
 
-                inp_batch, inp_target, ind_vals = PE.get_full_dataset()
+                inp_batch, inp_target, ind_vals = PE.get_batch(batch_size=dataset_size)
                 output = model(inp_batch, training=False)
 
                 ind_vals_int = ind_vals.astype('int')
