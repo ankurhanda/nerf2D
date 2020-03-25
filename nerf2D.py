@@ -5,9 +5,6 @@ import numpy as np
 from tensorflow.keras.layers import Dense 
 from tensorflow.keras import Model
 
-import os, sys
-import matplotlib.pyplot as plt
-
 class PositionEncoding(object):
     def __init__(self, image_np):
         super().__init__()
