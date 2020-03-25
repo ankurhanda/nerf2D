@@ -45,11 +45,15 @@ class PositionEncoding(object):
                     p_enc.append(np.sin(val * np.pi * ydash))
                     p_enc.append(np.cos(val * np.pi * ydash))
 
+                # Uncomment this line if you want to try (x, y) as input to the network
+                # i.e. passing raw coordinates instead of positional encoding 
                 # p_enc = [xdash, ydash]
-                # p_enc = list(np.matmul(Mat, np.array([xdash, ydash])))
+                
 
                 # Trying Random Fourier Features https://www.cs.cmu.edu/~schneide/DougalRandomFeatures_UAI2015.pdf
                 # and https://gist.github.com/vvanirudh/2683295a198a688ef3c49650cada0114
+
+                # p_enc = list(np.matmul(Mat, np.array([xdash, ydash])))
                 # dot_product = np.matmul(Mat, np.array([xdash, ydash]))
                 # Z = np.sqrt(1 / n_components) * np.concatenate([np.cos(dot_product), np.sin(dot_product)])
                 # Z = 2*(Z - np.min(Z)) / (np.max(Z) - np.min(Z)) -1 
