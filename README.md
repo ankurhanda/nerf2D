@@ -6,11 +6,11 @@ The task is to reconstruct an image from its 2D coordinates. The dataset consist
 
 ![equation](https://latex.codecogs.com/gif.latex?\dpi{200}&space;\large&space;\gamma(p)&space;=&space;[\sin(\pi&space;x),&space;\cos(\pi&space;x),&space;\sin(\pi&space;y),&space;\cos(\pi&space;y),&space;\sin(2\pi&space;x),&space;\cos(2\pi&space;x),\sin(2\pi&space;y),&space;\cos(2\pi&space;y),.....,&space;\sin(2^{L-1}\pi&space;x),&space;\cos(2^{L-1}\pi&space;x),&space;\sin(2^{L-1}\pi&space;y),&space;\cos(2^{L-1}\pi&space;y)&space;])
 
-The sin plots for various values of L look like the following 
+The sin plots for various values of L are:
 
 ![Sin-Plots](sin.png)
 
-The corresponding cos plots are
+The corresponding cos plots are:
 
 ![Cos-Plots](cos.png)
 
