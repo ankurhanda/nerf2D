@@ -58,32 +58,17 @@ class PositionEncoding(object):
         for y_i in range(0, H):
             for x_i in range(0, W):
 
-                # xdash = (1.0*x_i/W)*2.0 - 1.0 
-                # ydash = (1.0*y_i/H)*2.0 - 1.0 
-
                 r, g, b = image_np[y_i, x_i]
 
                 p_enc = []
 
                 for li in range(0, L):
-                    # val = np.power(2, L)
+
                     p_enc.append(x_el[li][x_i])
                     p_enc.append(x_el_hf[li][x_i])
 
                     p_enc.append(y_el[li][y_i])
                     p_enc.append(y_el_hf[li][y_i])
-
-                    # p_enc.append(signal.sawtooth(val * np.pi * xdash))
-                    # p_enc.append(-signal.sawtooth(val * np.pi * xdash))
-
-                    # p_enc.append(signal.sawtooth(val * np.pi * ydash))
-                    # p_enc.append(-signal.sawtooth(val * np.pi * ydash))
-
-                    # p_enc.append(np.sin(val * np.pi * xdash))
-                    # p_enc.append(np.cos(val * np.pi * xdash))
-
-                    # p_enc.append(np.sin(val * np.pi * ydash))
-                    # p_enc.append(np.cos(val * np.pi * ydash))
 
                 # Uncomment this line if you want to try (x, y) as input to the network
                 # i.e. passing raw coordinates instead of positional encoding 
