@@ -36,7 +36,7 @@ class PositionEncoding(object):
 
                 p_enc = []
 
-                for L in range(0, 10):
+                for L in range(0, 4):
                     val = np.power(2, L)
 
                     p_enc.append(np.sin(val * np.pi * xdash))
