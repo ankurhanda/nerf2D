@@ -8,9 +8,9 @@ The task is to reconstruct an image (pixel colour values) from its 2D coordinate
 
 The sin plots for various values of L are:
 
-![Sin-Plots](sin.png)
+![Sin-Plots](images_in_readme/sin.png)
 
 The corresponding cos plots are:
 
-![Cos-Plots](cos.png)
+![Cos-Plots](images_in_readme/cos.png)
 
