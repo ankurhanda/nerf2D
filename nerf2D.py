@@ -5,6 +5,8 @@ import numpy as np
 from tensorflow.keras.layers import Dense 
 from tensorflow.keras import Model
 
+from scipy import signal 
+
 class PositionEncoding(object):
     def __init__(self, image_np):
         super().__init__()
@@ -22,25 +24,66 @@ class PositionEncoding(object):
         # n_components = 20
         # Mat = np.random.normal(size=(n_components, 2)) * np.sqrt(2)
 
+        L = 10
+
+        x_linspace = (np.linspace(0, W-1, W)/W)*2 -1 
+        y_linspace = (np.linspace(0, H-1, H)/H)*2 -1
+
+        x_el = []
+        y_el = []
+
+        x_el_hf = []
+        y_el_hf = []
+        
+        for el in range(0, L):
+            val = 2 ** el 
+            
+            # x = signal.sawtooth(val * np.pi * x_linspace)
+            x = np.sin(val * np.pi * x_linspace)
+            x_el.append(x)
+
+            # x = signal.sawtooth(val * np.pi * x_linspace + np.pi/2.0)
+            x = np.cos(val * np.pi * x_linspace)
+            x_el_hf.append(x)
+
+            # y = signal.sawtooth(val * np.pi * y_linspace)
+            y = np.sin(val * np.pi * y_linspace)
+            y_el.append(y)
+
+            # y = signal.sawtooth(val * np.pi * y_linspace + np.pi/2.0)
+            y = np.cos(val * np.pi * y_linspace)
+            y_el_hf.append(y)
+
         # We can vectorise this code
         for y_i in range(0, H):
             for x_i in range(0, W):
 
-                xdash = (1.0*x_i/W)*2.0 - 1.0 
-                ydash = (1.0*y_i/H)*2.0 - 1.0 
+                # xdash = (1.0*x_i/W)*2.0 - 1.0 
+                # ydash = (1.0*y_i/H)*2.0 - 1.0 
 
                 r, g, b = image_np[y_i, x_i]
 
                 p_enc = []
 
-                for L in range(0, 4):
-                    val = np.power(2, L)
+                for li in range(0, L):
+                    # val = np.power(2, L)
+                    p_enc.append(x_el[li][x_i])
+                    p_enc.append(x_el_hf[li][x_i])
 
-                    p_enc.append(np.sin(val * np.pi * xdash))
-                    p_enc.append(np.cos(val * np.pi * xdash))
+                    p_enc.append(y_el[li][y_i])
+                    p_enc.append(y_el_hf[li][y_i])
 
-                    p_enc.append(np.sin(val * np.pi * ydash))
-                    p_enc.append(np.cos(val * np.pi * ydash))
+                    # p_enc.append(signal.sawtooth(val * np.pi * xdash))
+                    # p_enc.append(-signal.sawtooth(val * np.pi * xdash))
+
+                    # p_enc.append(signal.sawtooth(val * np.pi * ydash))
+                    # p_enc.append(-signal.sawtooth(val * np.pi * ydash))
+
+                    # p_enc.append(np.sin(val * np.pi * xdash))
+                    # p_enc.append(np.cos(val * np.pi * xdash))
+
+                    # p_enc.append(np.sin(val * np.pi * ydash))
+                    # p_enc.append(np.cos(val * np.pi * ydash))
 
                 # Uncomment this line if you want to try (x, y) as input to the network
                 # i.e. passing raw coordinates instead of positional encoding 
