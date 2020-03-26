@@ -7,7 +7,6 @@
 tensorflow 2.0
 opencv-python
 python 3.6
-
 ```
 
 nerf2D is a 2D toy illustration of the [Neural Radiance Fields](http://www.matthewtancik.com/nerf). The code shows how adding the gamma encoding (also referred to as positional encoding and Eq. 4 in the NeRF paper) improves results significantly. 
