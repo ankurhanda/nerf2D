@@ -8,7 +8,7 @@ from tensorflow.keras import Model
 from scipy import signal 
 
 class PositionEncoding(object):
-    def __init__(self, image_np):
+    def __init__(self, image_np, basis_function):
         super().__init__()
         
         self.dataset_size = []
@@ -16,22 +16,6 @@ class PositionEncoding(object):
         H, W, C = image_np.shape
     
         self.dataset = [np.array([-1, -1, -1, -1, -1])]*W*H
-
-        # Mat = np.random.rand(120, 2)
-        # l2norm = np.sqrt(np.power(Mat, 2).sum(axis=1))
-        # Mat[:, 0] = Mat[:, 0] / l2norm
-        # Mat[:, 1] = Mat[:, 1] / l2norm
-        # n_components = 20
-        # Mat = np.random.normal(size=(n_components, 2)) * np.sqrt(2)
-
-        # Trying Random Fourier Features https://www.cs.cmu.edu/~schneide/DougalRandomFeatures_UAI2015.pdf
-        # and https://gist.github.com/vvanirudh/2683295a198a688ef3c49650cada0114
-
-        # p_enc = list(np.matmul(Mat, np.array([xdash, ydash])))
-        # dot_product = np.matmul(Mat, np.array([xdash, ydash]))
-        # Z = np.sqrt(1 / n_components) * np.concatenate([np.cos(dot_product), np.sin(dot_product)])
-        # Z = 2*(Z - np.min(Z)) / (np.max(Z) - np.min(Z)) -1 
-        # p_enc = list(Z)
 
         L = 10
 
@@ -45,38 +29,52 @@ class PositionEncoding(object):
         y_el_hf = []
 
         
-        
         for el in range(0, L):
             val = 2 ** el 
 
-            # M_1 = np.random.rand(2,2)
-            # # M_2 = np.random.rand(2,2)
+            if basis_function == 'rbf':
+        
+                # Trying Random Fourier Features https://www.cs.cmu.edu/~schneide/DougalRandomFeatures_UAI2015.pdf
+                # and https://gist.github.com/vvanirudh/2683295a198a688ef3c49650cada0114
 
-            # x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))))
-            # x_el.append(x_1_y_1[0,: ])
-            # y_el.append(x_1_y_1[1,: ])
+                M_1 = np.random.rand(2,2)
 
-            # x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))) + np.pi/2)
-            # x_el_hf.append(x_1_y_1[0,: ])
-            # y_el_hf.append(x_1_y_1[1,: ])
+                x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))))
+                x_el.append(x_1_y_1[0,: ])
+                y_el.append(x_1_y_1[1,: ])
+
+                x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))) + np.pi/2)
+                x_el_hf.append(x_1_y_1[0,: ])
+                y_el_hf.append(x_1_y_1[1,: ])
             
-            # # x = signal.sawtooth(val * np.pi * x_linspace)
-            x = np.sin(val * np.pi * x_linspace)
-            x_el.append(x)
+            elif basis_function == 'sawtooth':
+                x = signal.sawtooth(val * np.pi * x_linspace)
+                x_el.append(x)
 
-            # # x = signal.sawtooth(val * np.pi * x_linspace + np.pi/2.0)
-            x = np.cos(val * np.pi * x_linspace)
-            x_el_hf.append(x)
+                x = signal.sawtooth(val * np.pi * x_linspace + np.pi/2.0)
+                x_el_hf.append(x)
 
-            # # y = signal.sawtooth(val * np.pi * y_linspace)
-            y = np.sin(val * np.pi * y_linspace)
-            y_el.append(y)
+                y = signal.sawtooth(val * np.pi * y_linspace)
+                y_el.append(y)
 
-            # # y = signal.sawtooth(val * np.pi * y_linspace + np.pi/2.0)
-            y = np.cos(val * np.pi * y_linspace)
-            y_el_hf.append(y)
+                y = signal.sawtooth(val * np.pi * y_linspace + np.pi/2.0)
+                y_el_hf.append(y)
 
-        # We can vectorise this code
+            elif basis_function == 'sin_cos':
+                
+                x = np.sin(val * np.pi * x_linspace)
+                x_el.append(x)
+
+                x = np.cos(val * np.pi * x_linspace)
+                x_el_hf.append(x)
+
+                y = np.sin(val * np.pi * y_linspace)
+                y_el.append(y)
+
+                y = np.cos(val * np.pi * y_linspace)
+                y_el_hf.append(y)
+
+        # TODO: vectorise this code!
         for y_i in range(0, H):
             for x_i in range(0, W):
 
@@ -148,7 +146,7 @@ testimg = im2arr
 testimg = testimg / 255.0  
 H, W, C = testimg.shape
 
-PE = PositionEncoding(testimg)
+PE = PositionEncoding(testimg, 'sin_cos')
 dataset_size = PE.dataset_size
 
 def build_model(output_dims=3):
