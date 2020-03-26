@@ -14,3 +14,11 @@ The corresponding cos plots are:
 
 ![Cos-Plots](images_in_readme/cos.png)
 
+
+Below, we should results with and without positional encoding. The left image is the dataset image, the middle is the reconstruction using positional encoding and the right is the reconstruction with just raw (x, y) 
+
+## House Image
+
+Image Credits: http://hof.povray.org/dhouse39.html
+
+![House](images_in_readme/house.gif)
