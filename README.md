@@ -15,13 +15,19 @@ The corresponding cos plots are:
 ![Cos-Plots](images_in_readme/cos.png)
 
 
-Below, we should results with and without positional encoding. The left image is the dataset image, the middle is the reconstruction using positional encoding and the right is the reconstruction with just raw (x, y) 
+Below, we should results with and without positional encoding. The left image is the dataset image, the middle is the reconstruction using positional encoding and the right is the reconstruction with just raw (x, y). The flickering in the images is due to renormalisation of (r, g, b) from [-1, 1] to [0, 255] at every epoch. 
 
-## Glass Image 
+## Glasses Image 
 
 Image Credits: http://hof.povray.org/glasses.html
 
 ![Glasses](images_in_readme/glasses.gif)
+
+## Cool Cows Image
+
+Image Credits: http://hof.povray.org/vaches.html
+
+![Cool Cows](images_in_readme/cool_cows.gif)
 
 ## House Image
 
