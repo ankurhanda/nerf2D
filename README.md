@@ -6,6 +6,8 @@ The task is to reconstruct an image (pixel colour values) from its 2D coordinate
 
 ![equation](images_in_readme/sin_cos.png)
 
+![equation](images_in_readme/SinCos.png)
+
 
 The sin plots for various values of L are:
 
