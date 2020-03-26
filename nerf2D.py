@@ -33,7 +33,7 @@ class PositionEncoding(object):
 
         self.basis_function = basis_function
         
-        # cache the values so you don't have to function calls at every pixel
+        # cache the values so you don't have to do function calls at every pixel
         for el in range(0, L):
             val = 2 ** el 
 
@@ -42,13 +42,17 @@ class PositionEncoding(object):
                 # Trying Random Fourier Features https://www.cs.cmu.edu/~schneide/DougalRandomFeatures_UAI2015.pdf
                 # and https://gist.github.com/vvanirudh/2683295a198a688ef3c49650cada0114
 
+                # Instead of a phase shift of pi/2, we could randomise it [-pi, pi]
+
                 M_1 = np.random.rand(2,2)
+
+                phase_shift = np.random.rand(1) * np.pi
 
                 x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))))
                 x_el.append(x_1_y_1[0,: ])
                 y_el.append(x_1_y_1[1,: ])
 
-                x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))) + np.pi/2)
+                x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))) + phase_shift)
                 x_el_hf.append(x_1_y_1[0,: ])
                 y_el_hf.append(x_1_y_1[1,: ])
             
@@ -144,14 +148,14 @@ class PositionEncoding(object):
         self.batch_count += 1 
         return np.array(input_vals), np.array(output_vals), np.array(indices_vals)
 
-im = Image.open('dataset/house.jpg')
+im = Image.open('dataset/glasses.jpg')
 im2arr = np.array(im) 
 
 testimg = im2arr 
 testimg = testimg / 255.0  
 H, W, C = testimg.shape
 
-PE = PositionEncoding(testimg, 'raw_xy')
+PE = PositionEncoding(testimg, 'rbf')
 dataset_size = PE.dataset_size
 
 def build_model(output_dims=3):
