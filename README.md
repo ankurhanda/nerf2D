@@ -17,6 +17,12 @@ The corresponding cos plots are:
 
 Below, we should results with and without positional encoding. The left image is the dataset image, the middle is the reconstruction using positional encoding and the right is the reconstruction with just raw (x, y) 
 
+## Glass Image 
+
+Image Credits: http://hof.povray.org/glasses.html
+
+![Glasses](images_in_readme/glasses.gif)
+
 ## House Image
 
 Image Credits: http://hof.povray.org/dhouse39.html
