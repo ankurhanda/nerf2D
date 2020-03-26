@@ -6,6 +6,9 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras import Model
 
 from scipy import signal 
+from PIL import Image
+import cv2 as cv2
+
 
 class PositionEncoding(object):
     def __init__(self, image_np, basis_function):
@@ -28,7 +31,9 @@ class PositionEncoding(object):
         x_el_hf = []
         y_el_hf = []
 
+        self.basis_function = basis_function
         
+        # cache the values so you don't have to function calls at every pixel
         for el in range(0, L):
             val = 2 ** el 
 
@@ -82,19 +87,22 @@ class PositionEncoding(object):
 
                 p_enc = []
 
-                for li in range(0, L):
-
-                    p_enc.append(x_el[li][x_i])
-                    p_enc.append(x_el_hf[li][x_i])
-
-                    p_enc.append(y_el[li][y_i])
-                    p_enc.append(y_el_hf[li][y_i])
-
-                # Uncomment this line if you want to try (x, y) as input to the network
                 # i.e. passing raw coordinates instead of positional encoding 
-                # xdash = (x_i/W)*2 -1
-                # ydash = (y_i/H)*2 -1
-                # p_enc = [xdash, ydash]
+                if basis_function == 'raw_xy':
+
+                    xdash = (x_i/W)*2 -1
+                    ydash = (y_i/H)*2 -1
+                    p_enc = [xdash, ydash]
+
+                else:
+
+                    for li in range(0, L):
+
+                        p_enc.append(x_el[li][x_i])
+                        p_enc.append(x_el_hf[li][x_i])
+
+                        p_enc.append(y_el[li][y_i])
+                        p_enc.append(y_el_hf[li][y_i])
 
                 p_enc = p_enc + [x_i, y_i, r*2 -1, g*2 -1, b*2 -1]
 
@@ -136,17 +144,14 @@ class PositionEncoding(object):
         self.batch_count += 1 
         return np.array(input_vals), np.array(output_vals), np.array(indices_vals)
 
-
-from PIL import Image
-
-im = Image.open('dataset/cool_cows.jpg')
+im = Image.open('dataset/glasses.jpg')
 im2arr = np.array(im) 
 
 testimg = im2arr 
 testimg = testimg / 255.0  
 H, W, C = testimg.shape
 
-PE = PositionEncoding(testimg, 'sin_cos')
+PE = PositionEncoding(testimg, 'raw_xy')
 dataset_size = PE.dataset_size
 
 def build_model(output_dims=3):
@@ -167,13 +172,12 @@ model = build_model(output_dims=3)
 batch_size = 1024
 decay = 0.999
 
-
 count = 0 
 epoch_no = 0 
 
 _read_img = np.zeros((H, W, 3))
 
-import cv2 as cv2
+save_every = 200
 
 while True:
 
@@ -185,7 +189,7 @@ while True:
 
             loss_map = tf.sqrt(loss_object(output, inp_target))
 
-            if count > 0 and count % 1000 == 0:
+            if count > 0 and count % save_every == 0:
 
                 inp_batch, inp_target, ind_vals = PE.get_batch(batch_size=dataset_size)
                 output = model(inp_batch, training=False)
@@ -196,6 +200,14 @@ while True:
                 np.put(_read_img[:, :, 0], ind_vals_int, np.clip((output[:, 0]+1)/2.0, 0, 1))
                 np.put(_read_img[:, :, 1], ind_vals_int, np.clip((output[:, 1]+1)/2.0, 0, 1))
                 np.put(_read_img[:, :, 2], ind_vals_int, np.clip((output[:, 2]+1)/2.0, 0, 1))
+
+                fileName = 'training_evolution_' + PE.basis_function + '_{:04d}.jpg'.format(int(epoch_no))
+                save_img = np.copy(_read_img[...,::-1]*255.0)
+                cv2.imwrite(fileName, save_img.astype('uint8'))
+
+                # run only or 1000 epochs
+                if epoch_no > 1000:
+                    break
 
 
             cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
