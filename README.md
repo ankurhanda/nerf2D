@@ -17,6 +17,8 @@ The corresponding cos plots are:
 
 Below, we should results with and without positional encoding. The left image is the dataset image, the middle is the reconstruction using positional encoding and the right is the reconstruction with just raw (x, y). The flickering in the images is due to renormalisation of (r, g, b) from [-1, 1] to [0, 255] at every epoch. Note that the network that uses (x, y) as input is hardly able to get any high frequency details in the results.
 
+In the positional encoding we use `L=10` for most of the cases, but for higher frequency reconstructions this number could be increased. This largely varies from image to image so this should be treated as a hyper-parameter.
+
 ## Glasses Image 
 
 Image Credits: http://hof.povray.org/glasses.html
