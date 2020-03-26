@@ -1,5 +1,15 @@
 ## nerf2D 
 
+
+### Requirements
+
+```
+tensorflow 2.0
+opencv-python
+python 3.6
+
+```
+
 nerf2D is a 2D toy illustration of the [Neural Radiance Fields](http://www.matthewtancik.com/nerf). The code shows how adding the gamma encoding (also referred to as positional encoding and Eq. 4 in the NeRF paper) improves results significantly. 
 
 The task is to reconstruct an image (pixel colour values) from its 2D coordinates. The dataset consists of tuples ((x, y), (r, g, b)) where the input is (x, y) and output is (r, g, b). We train a 2 layer MLP with relu activations to map (x, y) to (r, g, b). The input is normalised (as also mentioned in the paper) to range [-1, 1] and we also output in range [-1, 1]. The purpose of this 2D illustration is to show that lifting the input observation (x, y) to higher dimensions via these transformations (via gamma encoding) makes it easier for network to learn things. Training with with raw (x, y) results in blurry reconstructions while adding gamma encoding shows dramatic improvements in the results _i.e._ it is able to preserve the sharp edges in the image. 
