@@ -6,6 +6,7 @@ The task is to reconstruct an image (pixel colour values) from its 2D coordinate
 
 ![equation](https://latex.codecogs.com/gif.latex?\dpi{200}&space;\large&space;\gamma(p)&space;=&space;[\sin(\pi&space;x),&space;\cos(\pi&space;x),&space;\sin(\pi&space;y),&space;\cos(\pi&space;y),&space;\sin(2\pi&space;x),&space;\cos(2\pi&space;x),\sin(2\pi&space;y),&space;\cos(2\pi&space;y),.....,&space;\sin(2^{L-1}\pi&space;x),&space;\cos(2^{L-1}\pi&space;x),&space;\sin(2^{L-1}\pi&space;y),&space;\cos(2^{L-1}\pi&space;y)&space;])
 
+![equation](https://latex.codecogs.com/gif.latex?\dpi{120}&space;\large&space;\gamma(x,&space;y)=&space;[\sin(\pi&space;x),\cos(\pi&space;x),\sin(\pi&space;y),\cos(\pi&space;y),\sin(2\pi&space;x),\cos(2\pi&space;x),\sin(2\pi&space;y),\cos(2\pi&space;y),.....,\sin(2^{L-1}\pi&space;x),\cos(2^{L-1}\pi&space;x),\sin(2^{L-1}\pi&space;y),\cos(2^{L-1}\pi&space;y)])
 The sin plots for various values of L are:
 
 ![Sin-Plots](images_in_readme/sin.png)
