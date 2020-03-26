@@ -15,7 +15,7 @@ The corresponding cos plots are:
 ![Cos-Plots](images_in_readme/cos.png)
 
 
-Below, we should results with and without positional encoding. The left image is the dataset image, the middle is the reconstruction using positional encoding and the right is the reconstruction with just raw (x, y). The flickering in the images is due to renormalisation of (r, g, b) from [-1, 1] to [0, 255] at every epoch. 
+Below, we should results with and without positional encoding. The left image is the dataset image, the middle is the reconstruction using positional encoding and the right is the reconstruction with just raw (x, y). The flickering in the images is due to renormalisation of (r, g, b) from [-1, 1] to [0, 255] at every epoch. Note that the network that uses (x, y) as input is hardly able to get any high frequency details in the results.
 
 ## Glasses Image 
 
