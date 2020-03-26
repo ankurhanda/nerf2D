@@ -24,6 +24,15 @@ class PositionEncoding(object):
         # n_components = 20
         # Mat = np.random.normal(size=(n_components, 2)) * np.sqrt(2)
 
+        # Trying Random Fourier Features https://www.cs.cmu.edu/~schneide/DougalRandomFeatures_UAI2015.pdf
+        # and https://gist.github.com/vvanirudh/2683295a198a688ef3c49650cada0114
+
+        # p_enc = list(np.matmul(Mat, np.array([xdash, ydash])))
+        # dot_product = np.matmul(Mat, np.array([xdash, ydash]))
+        # Z = np.sqrt(1 / n_components) * np.concatenate([np.cos(dot_product), np.sin(dot_product)])
+        # Z = 2*(Z - np.min(Z)) / (np.max(Z) - np.min(Z)) -1 
+        # p_enc = list(Z)
+
         L = 10
 
         x_linspace = (np.linspace(0, W-1, W)/W)*2 -1 
@@ -34,23 +43,36 @@ class PositionEncoding(object):
 
         x_el_hf = []
         y_el_hf = []
+
+        
         
         for el in range(0, L):
             val = 2 ** el 
+
+            # M_1 = np.random.rand(2,2)
+            # # M_2 = np.random.rand(2,2)
+
+            # x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))))
+            # x_el.append(x_1_y_1[0,: ])
+            # y_el.append(x_1_y_1[1,: ])
+
+            # x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))) + np.pi/2)
+            # x_el_hf.append(x_1_y_1[0,: ])
+            # y_el_hf.append(x_1_y_1[1,: ])
             
-            # x = signal.sawtooth(val * np.pi * x_linspace)
+            # # x = signal.sawtooth(val * np.pi * x_linspace)
             x = np.sin(val * np.pi * x_linspace)
             x_el.append(x)
 
-            # x = signal.sawtooth(val * np.pi * x_linspace + np.pi/2.0)
+            # # x = signal.sawtooth(val * np.pi * x_linspace + np.pi/2.0)
             x = np.cos(val * np.pi * x_linspace)
             x_el_hf.append(x)
 
-            # y = signal.sawtooth(val * np.pi * y_linspace)
+            # # y = signal.sawtooth(val * np.pi * y_linspace)
             y = np.sin(val * np.pi * y_linspace)
             y_el.append(y)
 
-            # y = signal.sawtooth(val * np.pi * y_linspace + np.pi/2.0)
+            # # y = signal.sawtooth(val * np.pi * y_linspace + np.pi/2.0)
             y = np.cos(val * np.pi * y_linspace)
             y_el_hf.append(y)
 
@@ -72,17 +94,9 @@ class PositionEncoding(object):
 
                 # Uncomment this line if you want to try (x, y) as input to the network
                 # i.e. passing raw coordinates instead of positional encoding 
+                # xdash = (x_i/W)*2 -1
+                # ydash = (y_i/H)*2 -1
                 # p_enc = [xdash, ydash]
-
-
-                # Trying Random Fourier Features https://www.cs.cmu.edu/~schneide/DougalRandomFeatures_UAI2015.pdf
-                # and https://gist.github.com/vvanirudh/2683295a198a688ef3c49650cada0114
-
-                # p_enc = list(np.matmul(Mat, np.array([xdash, ydash])))
-                # dot_product = np.matmul(Mat, np.array([xdash, ydash]))
-                # Z = np.sqrt(1 / n_components) * np.concatenate([np.cos(dot_product), np.sin(dot_product)])
-                # Z = 2*(Z - np.min(Z)) / (np.max(Z) - np.min(Z)) -1 
-                # p_enc = list(Z)
 
                 p_enc = p_enc + [x_i, y_i, r*2 -1, g*2 -1, b*2 -1]
 
@@ -127,8 +141,7 @@ class PositionEncoding(object):
 
 from PIL import Image
 
-# im = Image.open('robot_256.jpg')
-im = Image.open('anime.jpg')
+im = Image.open('dataset/cool_cows.jpg')
 im2arr = np.array(im) 
 
 testimg = im2arr 
