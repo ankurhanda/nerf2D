@@ -1,9 +1,8 @@
 ## nerf2D 
 
-
-### Requirements
-
 ```
+Requirements
+
 tensorflow 2.0
 opencv-python
 python 3.6
