@@ -38,6 +38,12 @@ Image Credits: http://hof.povray.org/dhouse39.html
 ![House](images_in_readme/house.gif)
 
 
+## Training with more layers
+
+We also trained with 8 layers of MLPs each with 128 features and ReLU and BatchNorm. 
+
+![More-Layers](images/glasses_8_layers.jpg)
+
 ## Requirements
 
 ```

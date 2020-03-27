@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import tensorflow as tf
 import numpy as np
 
-from tensorflow.keras.layers import Dense 
+from tensorflow.keras.layers import Dense, BatchNormalization 
 from tensorflow.keras import Model
 
 from scipy import signal, special 
@@ -175,6 +175,22 @@ dataset_size = PE.dataset_size
 def build_model(output_dims=3):
     model = tf.keras.Sequential([
         Dense(128, activation='relu'),
+        BatchNormalization(),
+        Dense(128, activation='relu'),
+        
+        BatchNormalization(),
+        Dense(128, activation='relu'),
+        BatchNormalization(),
+        Dense(128, activation='relu'),
+
+        BatchNormalization(),
+        Dense(128, activation='relu'),
+        BatchNormalization(),
+        Dense(128, activation='relu'),
+
+        BatchNormalization(),
+        Dense(128, activation='relu'),
+        BatchNormalization(),
         Dense(128, activation='relu'),
 
         Dense(output_dims, activation='linear')
