@@ -5,7 +5,7 @@ import numpy as np
 from tensorflow.keras.layers import Dense 
 from tensorflow.keras import Model
 
-from scipy import signal 
+from scipy import signal, special 
 from PIL import Image
 import cv2 as cv2
 
@@ -36,7 +36,7 @@ class PositionEncoding(object):
         # cache the values so you don't have to do function calls at every pixel
         for el in range(0, L):
             val = 2 ** el 
-
+            
             if basis_function == 'rbf':
         
                 # Trying Random Fourier Features https://www.cs.cmu.edu/~schneide/DougalRandomFeatures_UAI2015.pdf
@@ -55,6 +55,20 @@ class PositionEncoding(object):
                 x_1_y_1 = np.sin(val * np.matmul(M_1, np.vstack((x_linspace, y_linspace))) + phase_shift)
                 x_el_hf.append(x_1_y_1[0,: ])
                 y_el_hf.append(x_1_y_1[1,: ])
+
+            elif basis_function == 'diric':
+
+                x = special.diric(np.pi * x_linspace, val)
+                x_el.append(x)
+
+                x = special.diric(np.pi * x_linspace + np.pi/2.0, val)
+                x_el_hf.append(x)
+
+                y = special.diric(np.pi * y_linspace, val)
+                y_el.append(y)
+
+                y = special.diric(np.pi * y_linspace + np.pi/2.0, val)
+                y_el_hf.append(y)
             
             elif basis_function == 'sawtooth':
                 x = signal.sawtooth(val * np.pi * x_linspace)
@@ -155,7 +169,7 @@ testimg = im2arr
 testimg = testimg / 255.0  
 H, W, C = testimg.shape
 
-PE = PositionEncoding(testimg, 'rbf')
+PE = PositionEncoding(testimg, 'sin_cos')
 dataset_size = PE.dataset_size
 
 def build_model(output_dims=3):
