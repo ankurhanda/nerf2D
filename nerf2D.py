@@ -16,9 +16,9 @@ class PositionEncoding(object):
         
         self.dataset_size = []
 
-        H, W, C = image_np.shape
+        H, W, C = image_np[0].shape
     
-        self.dataset = [np.array([-1, -1, -1, -1, -1])]*W*H
+        self.dataset = [] #[np.array([-1, -1, -1, -1, -1])]*W*H*len(image_np)
 
         L = 10
 
@@ -98,33 +98,42 @@ class PositionEncoding(object):
                 y_el_hf.append(y)
 
         # TODO: vectorise this code!
-        for y_i in range(0, H):
-            for x_i in range(0, W):
+        
+        for i in range(0, len(image_np)):
 
-                r, g, b = image_np[y_i, x_i]
+            t = i * 2 * np.pi * (1.0/30.0)
 
-                p_enc = []
+            for y_i in range(0, H):
+                for x_i in range(0, W):
 
-                # i.e. passing raw coordinates instead of positional encoding 
-                if basis_function == 'raw_xy':
+                    r, g, b = image_np[i][y_i, x_i]
 
-                    xdash = (x_i/W)*2 -1
-                    ydash = (y_i/H)*2 -1
-                    p_enc = [xdash, ydash]
+                    p_enc = []
 
-                else:
+                    # i.e. passing raw coordinates instead of positional encoding 
+                    if basis_function == 'raw_xy':
 
-                    for li in range(0, L):
+                        xdash = (x_i/W)*2 -1
+                        ydash = (y_i/H)*2 -1
+                        p_enc = [xdash, ydash]
 
-                        p_enc.append(x_el[li][x_i])
-                        p_enc.append(x_el_hf[li][x_i])
+                    else:
 
-                        p_enc.append(y_el[li][y_i])
-                        p_enc.append(y_el_hf[li][y_i])
+                        for li in range(0, L):
 
-                p_enc = p_enc + [x_i, y_i, r*2 -1, g*2 -1, b*2 -1]
+                            p_enc.append(x_el[li][x_i])
+                            p_enc.append(x_el_hf[li][x_i])
 
-                self.dataset[y_i * W + x_i]  = np.array(p_enc)
+                            p_enc.append(y_el[li][y_i])
+                            p_enc.append(y_el_hf[li][y_i])
+
+                    p_enc.append(np.sin(t))
+                    p_enc.append(np.cos(t))
+                    
+                    p_enc = p_enc + [x_i, y_i, r*2 -1, g*2 -1, b*2 -1]
+
+                    # self.dataset[i * W * H + y_i * W + x_i]  = np.array(p_enc)
+                    self.dataset.append(np.array(p_enc))
 
         self.dataset_size = len(self.dataset)
         print('size of dataset_size = ', self.dataset_size)
@@ -133,6 +142,38 @@ class PositionEncoding(object):
         np.random.shuffle(self.ind)
 
         self.batch_count = 0
+
+        self.full_img_input, self.full_img_output, self.full_img_ind = self.get_full_image()
+
+
+    def get_full_image(self):
+
+        input_vals = []
+        output_vals = []
+        indices_vals = []
+
+        t = 2 * np.pi * 1.0 / 60.0 
+
+        for y_i in range(0, H):
+            for x_i in range(0, W):
+                
+                p_enc = np.copy(self.dataset[y_i * W + x_i])
+
+                input_d = p_enc[0:-5]
+
+                input_d[-2] = np.sin(t)
+                input_d[-1] = np.cos(t)
+
+                input_vals.append(input_d)
+
+                r, g, b = p_enc[-3], p_enc[-2], p_enc[-1]
+                x, y = p_enc[-5], p_enc[-4]
+
+                output_vals.append([r, g, b])
+
+                indices_vals.append([x, y])
+
+        return np.array(input_vals), np.array(output_vals), np.array(indices_vals)        
 
     def get_batch(self, batch_size=10):
 
@@ -162,14 +203,21 @@ class PositionEncoding(object):
         self.batch_count += 1 
         return np.array(input_vals), np.array(output_vals), np.array(indices_vals)
 
-im = Image.open('dataset/fractal.jpg')
-im2arr = np.array(im) 
+data_imgs = []
+num_images = 2
 
-testimg = im2arr 
-testimg = testimg / 255.0  
-H, W, C = testimg.shape
+for i in range(0, num_images):
+    fileName = 'icl_nuim_traj3/scene_00_{:04d}.png'.format(i*20+697)
+    im = Image.open(fileName)
+    im2arr = np.array(im) 
 
-PE = PositionEncoding(testimg, 'sin_cos')
+    im2arr = im2arr / 255.0  
+
+    data_imgs.append(im2arr)
+
+H, W, C = data_imgs[0].shape
+
+PE = PositionEncoding(data_imgs, 'sin_cos')
 dataset_size = PE.dataset_size
 
 def build_model(output_dims=3):
@@ -225,7 +273,7 @@ while True:
 
             if count > 0 and count % save_every == 0:
 
-                inp_batch, inp_target, ind_vals = PE.get_batch(batch_size=dataset_size)
+                inp_batch, inp_target, ind_vals = PE.full_img_input, PE.full_img_output, PE.full_img_ind 
                 output = model(inp_batch, training=False)
 
                 ind_vals_int = ind_vals.astype('int')
@@ -243,6 +291,11 @@ while True:
                 if epoch_no > 1000:
                     break
 
+            else:
+
+                gradients = tape.gradient(loss_map, model.trainable_variables)
+                optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
 
             cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
             cv2.imshow('Align Example', _read_img[...,::-1])
@@ -258,9 +311,6 @@ while True:
                                                                                             count,
                                                                                             epoch_no,
                                                                                             batch_size))
-        gradients = tape.gradient(loss_map, model.trainable_variables)
-        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-    
         count += 1 
 
         if PE.batch_count == 1 and count > 1:
