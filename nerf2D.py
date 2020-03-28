@@ -110,11 +110,12 @@ class PositionEncoding(object):
 
                     p_enc = []
 
+                    xdash = (x_i/W)*2 -1
+                    ydash = (y_i/H)*2 -1
+
                     # i.e. passing raw coordinates instead of positional encoding 
                     if basis_function == 'raw_xy':
 
-                        xdash = (x_i/W)*2 -1
-                        ydash = (y_i/H)*2 -1
                         p_enc = [xdash, ydash]
 
                     else:
@@ -127,8 +128,12 @@ class PositionEncoding(object):
                             p_enc.append(y_el[li][y_i])
                             p_enc.append(y_el_hf[li][y_i])
 
-                    p_enc.append(np.sin(t))
-                    p_enc.append(np.cos(t))
+
+                        p_enc.append(np.sin(t * xdash))
+                        p_enc.append(np.cos(t * xdash))
+
+                        p_enc.append(np.sin(t * ydash))
+                        p_enc.append(np.cos(t * ydash))
                     
                     p_enc = p_enc + [x_i, y_i, r*2 -1, g*2 -1, b*2 -1]
 
@@ -161,8 +166,17 @@ class PositionEncoding(object):
 
                 input_d = p_enc[0:-5]
 
-                input_d[-2] = np.sin(t)
-                input_d[-1] = np.cos(t)
+                xdash = (x_i / W)*2 -1 
+                ydash = (y_i / H)*2 -1
+
+                input_d[-4] = np.sin(t * xdash)
+                input_d[-3] = np.cos(t * xdash)
+
+                input_d[-2] = np.sin(t * ydash)
+                input_d[-1] = np.cos(t * ydash)
+
+                # input_d[-2] = np.sin(t)
+                # input_d[-1] = np.cos(t)
 
                 input_vals.append(input_d)
 
@@ -207,7 +221,7 @@ data_imgs = []
 num_images = 2
 
 for i in range(0, num_images):
-    fileName = 'icl_nuim_traj3/scene_00_{:04d}.png'.format(i*20+697)
+    fileName = 'icl_nuim_traj3/scene_00_{:04d}.png'.format(i*10+697)
     im = Image.open(fileName)
     im2arr = np.array(im) 
 
