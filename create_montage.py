@@ -1,7 +1,7 @@
 import glob
 import os
 
-dataset = 'cool_cows'
+dataset = 'glasses'
 
 raw_xy  = sorted(glob.glob("./dataset/" + dataset + "/*raw_xy*.jpg"))
 sin_cos = sorted(glob.glob("./dataset/" + dataset + "/*sin_cos*.jpg"))
