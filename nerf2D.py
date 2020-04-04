@@ -162,7 +162,7 @@ class PositionEncoding(object):
         self.batch_count += 1 
         return np.array(input_vals), np.array(output_vals), np.array(indices_vals)
 
-im = Image.open('dataset/fractal.jpg')
+im = Image.open('dataset/glasses.jpg')
 im2arr = np.array(im) 
 
 testimg = im2arr 
