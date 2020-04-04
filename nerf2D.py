@@ -22,6 +22,11 @@ class PositionEncoding(object):
 
         L = 10
 
+        self.L = L 
+
+        self.h_desired = H * 2
+        self.w_desired = W * 2
+
         x_linspace = (np.linspace(0, W-1, W)/W)*2 -1 
         y_linspace = (np.linspace(0, H-1, H)/H)*2 -1
 
@@ -129,12 +134,14 @@ class PositionEncoding(object):
                             p_enc.append(y_el_hf[li][y_i])
 
 
-                        p_enc.append(np.sin(t * xdash))
-                        p_enc.append(np.cos(t * xdash))
+                        # p_enc.append(np.sin(t * xdash))
+                        # p_enc.append(np.cos(t * xdash))
 
-                        p_enc.append(np.sin(t * ydash))
-                        p_enc.append(np.cos(t * ydash))
+                        # p_enc.append(np.sin(t * ydash))
+                        # p_enc.append(np.cos(t * ydash))
                     
+                    p_enc.append(xdash)
+                    p_enc.append(ydash)
                     p_enc = p_enc + [x_i, y_i, r*2 -1, g*2 -1, b*2 -1]
 
                     # self.dataset[i * W * H + y_i * W + x_i]  = np.array(p_enc)
@@ -157,26 +164,64 @@ class PositionEncoding(object):
         output_vals = []
         indices_vals = []
 
-        t = 2 * np.pi * 1.0 / 60.0 
+        W = self.w_desired
+        H = self.h_desired
+
+        x_linspace = (np.linspace(0, W-1, W)/W)*2 -1 
+        y_linspace = (np.linspace(0, H-1, H)/H)*2 -1
+
+        x_el = []
+        y_el = []
+
+        x_el_hf = []
+        y_el_hf = []
+
+        for el in range(0, self.L):
+            val = 2 ** el 
+
+            x = np.sin(val * np.pi * x_linspace)
+            x_el.append(x)
+
+            x = np.cos(val * np.pi * x_linspace)
+            x_el_hf.append(x)
+
+            y = np.sin(val * np.pi * y_linspace)
+            y_el.append(y)
+
+            y = np.cos(val * np.pi * y_linspace)
+            y_el_hf.append(y)
+            
+
+        t = 0 #2 * np.pi * 1.0 / 60.0 
 
         for y_i in range(0, H):
             for x_i in range(0, W):
+
+                p_enc = []
+
+                xdash = (x_i/W)*2 -1
+                ydash = (y_i/H)*2 -1
+
+                for li in range(0, self.L):
+
+                    p_enc.append(x_el[li][x_i])
+                    p_enc.append(x_el_hf[li][x_i])
+
+                    p_enc.append(y_el[li][y_i])
+                    p_enc.append(y_el_hf[li][y_i])
+
+
+                # p_enc.append(np.sin(t * xdash))
+                # p_enc.append(np.cos(t * xdash))
+
+                # p_enc.append(np.sin(t * ydash))
+                # p_enc.append(np.cos(t * ydash))
                 
-                p_enc = np.copy(self.dataset[y_i * W + x_i])
+                p_enc.append(xdash)
+                p_enc.append(ydash)
 
+                p_enc = p_enc + [x_i, y_i, 0, 0, 0]
                 input_d = p_enc[0:-5]
-
-                xdash = (x_i / W)*2 -1 
-                ydash = (y_i / H)*2 -1
-
-                input_d[-4] = np.sin(t * xdash)
-                input_d[-3] = np.cos(t * xdash)
-
-                input_d[-2] = np.sin(t * ydash)
-                input_d[-1] = np.cos(t * ydash)
-
-                # input_d[-2] = np.sin(t)
-                # input_d[-1] = np.cos(t)
 
                 input_vals.append(input_d)
 
@@ -218,10 +263,11 @@ class PositionEncoding(object):
         return np.array(input_vals), np.array(output_vals), np.array(indices_vals)
 
 data_imgs = []
-num_images = 2
+num_images = 1
 
 for i in range(0, num_images):
-    fileName = 'icl_nuim_traj3/scene_00_{:04d}.png'.format(i*10+697)
+    # fileName = 'icl_nuim_traj3/scene_00_{:04d}.png'.format(i*5+697)
+    fileName = 'dataset/glasses.jpg'
     im = Image.open(fileName)
     im2arr = np.array(im) 
 
@@ -260,7 +306,7 @@ def build_model(output_dims=3):
     return model
 
 loss_object = tf.keras.losses.MeanSquaredError()
-optimizer = tf.keras.optimizers.Adam(lr=1e-2)
+optimizer = tf.keras.optimizers.Adam(lr=5e-3)
 EPOCHS = 5
 
 model = build_model(output_dims=3)
@@ -271,7 +317,7 @@ decay = 0.999
 count = 0 
 epoch_no = 0 
 
-_read_img = np.zeros((H, W, 3))
+_read_img = np.zeros((PE.h_desired, PE.w_desired, 3))
 
 save_every = 200
 
@@ -291,7 +337,7 @@ while True:
                 output = model(inp_batch, training=False)
 
                 ind_vals_int = ind_vals.astype('int')
-                ind_vals_int = ind_vals_int[:, 1] * W + ind_vals_int[:, 0]
+                ind_vals_int = ind_vals_int[:, 1] * PE.w_desired + ind_vals_int[:, 0]
 
                 np.put(_read_img[:, :, 0], ind_vals_int, np.clip((output[:, 0]+1)/2.0, 0, 1))
                 np.put(_read_img[:, :, 1], ind_vals_int, np.clip((output[:, 1]+1)/2.0, 0, 1))
